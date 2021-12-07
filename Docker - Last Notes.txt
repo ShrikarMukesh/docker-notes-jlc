@@ -1,0 +1,151 @@
+Q1) What are the Dangling images?
+Ans: 
+Dangling images are layers that have no relationship to any tagged images. They no longer serve a purpose and consume disk space.
+
+I have an Image-1 with 3 Layers.- L1 , L2, L3
+I have an Image-2 with 5 Layers.- L1 , L2, L4,L5,L6
+
+I am updating my Image-1 : L1,L2,L7,L8
+
+L3 is Dangling image.
+
+Q2) What are the Unused images?
+Ans:
+An unused image is an image Which is not having any containers.
+
+Q3) Diff bwetween  COPY and ADD directives of dockerfile?
+Ans:
+To move the Files to Docker Image.
+
+Both syntax looks same. 
+
+COPY <source> <destination>
+ADD <source> <destination>
+
+Source : host machine / remote location
+Destination : inside Image
+
+COPY directive is used to copy the Files from Host machine to Docker Image.
+
+ADD directive is more powerful in two ways:
+ADD git ''''''''''''''
+
+It can handle remote URLs
+It can auto-extract tar files
+============================
+Q4) Diff bwetween  CMD and ENTRYPOINT directives of dockerfile?
+Ans:
+=========================
+Demo1 :
+=====================
+FROM ubuntu:20.04
+RUN apt-get -y update 
+RUN mkdir /home/myjlc
+COPY hello.txt /home/myjlc
+WORKDIR /home/myjlc
+CMD echo "Hello JLC Guys1"
+CMD echo "Hello JLC Guys2"
+ENTRYPOINT echo "Hello JLC Guys3"
+ENTRYPOINT echo "Hello JLC Guys4"
+
+
+docker build -t mytest:v1 -f myjlcDockerFile .
+
+docker run mytest:v1
+
+=========================
+Demo2 :
+===========
+FROM ubuntu:20.04
+RUN apt-get -y update 
+RUN mkdir /home/myjlc
+COPY hello.txt /home/myjlc
+WORKDIR /home/myjlc
+CMD echo "Hello JLC Guys1"
+=====================
+
+docker build -t mytest:v1  -f myjlcDockerFile  .
+
+
+docker run mytest:v1
+Hello JLC Guys1
+
+ docker run -it mytest:v1 bash
+root@15fa6eaa8671:/#
+
+docker run -it mytest:v1 ls
+
+bin   dev  home  lib32  libx32  mnt  proc  run   srv  tmp  var
+boot  etc  lib   lib64  media   opt  root  sbin  sys  usr
+
+docker run -it mytest:v1 echo "Ok Ok"
+Ok Ok
+
+=========================
+Demo3 :
+===========
+FROM ubuntu:20.04
+RUN apt-get -y update 
+RUN mkdir /home/myjlc
+COPY hello.txt /home/myjlc
+WORKDIR /home/myjlc
+CMD echo "Hello JLC Guys1"
+CMD echo "Hello JLC Guys2"
+=====================
+docker build -t mytest:v1  -f myjlcDockerFile  .
+
+1) 
+docker run mytest:v1
+Hello JLC Guys2
+
+2)
+docker run -it mytest:v1 ls
+bin   dev  home  lib32  libx32  mnt  proc  run   srv  tmp  var
+boot  etc  lib   lib64  media   opt  root  sbin  sys  usr
+
+3)
+ docker run -it mytest:v1 bash
+root@15fa6eaa8671:/#
+
+4)
+docker run -it mytest:v1 echo "Ok Ok"
+Ok Ok
+
+=========================
+Demo4 :
+===========
+FROM ubuntu:20.04
+RUN apt-get -y update 
+RUN mkdir /home/myjlc
+COPY hello.txt /home/myjlc
+WORKDIR /home/myjlc
+CMD echo "Hello JLC Guys1"
+CMD echo "Hello JLC Guys2"
+ENTRYPOINT echo "Hello JLC Guys3"
+=====================
+docker build -t mytest:v1  -f myjlcDockerFile  .
+
+
+docker run mytest:v1
+Hello JLC Guys3
+
+docker run -it mytest:v1 ls
+Hello JLC Guys3
+
+ docker run -it mytest:v1 bash
+Hello JLC Guys3
+
+docker run -it mytest:v1 echo "Ok Ok"
+Hello JLC Guys3
+
+=========================
+Demo5 :
+===========
+
+FROM ubuntu:20.04
+RUN apt-get -y update 
+ENTRYPOINT ["echo", "Hello "]
+CMD ["JLC Guys"]
+
+*Docker Completed Successfully*
+

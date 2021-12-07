@@ -1,0 +1,77 @@
+
+Macvlan Network:
+=================
+
+myjlc-docker - with Docker
+=================
+ssh ubuntu@18.116.68.170
+
+
+myjlc-linux - without Docker
+=================
+ssh ubuntu@52.15.80.102
+
+
+Steps with myjlc-1 - with Docker
+======================
+sudo apt install net-tools
+
+netstat -i
+
+ifconfig eth0 promisc  //enable 
+
+netstat -i
+
+docker network ls
+
+docker network create   \
+--driver macvlan  \
+--subnet=55.0.0.0/24  \
+--ip-range=55.0.0.0/27  \
+-o ipvlan-mode=l2 \
+-o parent=eth0 \
+jlc-macvlan-net
+
+docker network inspect jlc-macvlan-net
+
+
+docker network ls
+
+docker container run -d  \
+-p 12345:8080 \
+--name mytest1 \
+--network jlc-macvlan-net \
+myjlcapp 
+
+docker container run -d  \
+-p 54321:8080 \
+--name mytest2 \
+--network jlc-macvlan-net \
+myjlcapp 
+
+docker network inspect jlc-macvlan-net
+
+docker container inspect mytest1 
+
+docker container inspect mytest2
+
+=============================
+docker container exec -it mytest1  /bin/bash
+
+root@365e389fe0fb:/#
+
+apt install -y iproute2
+apt install iputils-ping
+
+# ip -d link show eth0
+
+ping the linux host
+
+
+myjlc-linux - without Docker
+=================
+ping -c 5 55.0.0.2
+ping -c 5 55.0.0.3
+
+
+

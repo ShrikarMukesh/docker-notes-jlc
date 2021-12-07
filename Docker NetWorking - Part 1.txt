@@ -1,0 +1,268 @@
+* Create VM with the Name : myjlc-docker
+=============================
+ssh ubuntu@3.129.205.152
+
+
+docker pull dandesclasses/myjlcapp:v1.0
+
+docker tag  dandesclasses/myjlcapp:v1.0 myjlcapp
+
+
+docker network --help
+Usage:  docker network COMMAND
+
+Manage networks
+
+Commands:
+  ls          List networks 
+  create      Create a network
+  inspect     Display detailed information on one or more networks
+  rm          Remove one or more networks
+  prune       Remove all unused networks
+  connect     Connect a container to a network
+  disconnect  Disconnect a container from a network
+
+
+docker network ls
+
+docker network create --driver=bridge  myjlc1-net
+
+docker network ls
+
+docker network create myjlc2-net
+
+docker network create --driver=bridge  myjlc3-net
+
+docker network ls
+
+docker network inspect myjlc1-net
+
+docker network rm myjlc1-net
+
+docker network ls
+
+docker network prune
+
+docker network ls
+
+
+docker network create --driver=bridge  myjlc-net
+
+docker network inspect myjlc-net
+
+GateWay 172.21.0.1
+
+docker container run -d \
+--publish 2345:8080 \
+--name myjlc1 \
+--network myjlc-net \
+myjlcapp
+
+
+3.129.205.152:2345/myjlcapp
+
+
+docker network inspect myjlc-net
+
+docker container run -d \
+--publish 2346:8080 \
+--name myjlc2 \
+--network myjlc-net \
+myjlcapp
+
+3.129.205.152:2345/myjlcapp
+
+docker network inspect myjlc-net
+
+docker container inspect myjlc1
+
+docker container inspect myjlc2
+
+
+docker network disconnect myjlc-net myjlc1
+
+docker network inspect myjlc-net
+
+docker container run -d \
+--publish 2347:8080 \
+--name myjlc3 \
+--network myjlc-net \
+myjlcapp
+
+docker network inspect myjlc-net
+
+docker network connect myjlc-net myjlc1
+
+docker network inspect myjlc-net
+
+docker network ls
+
+docker network inspect bridge
+
+Explroing Built-In Bridge Network
+----------------------------------------------
+
+docker network inspect myjlc-net
+
+docker network inspect bridge
+
+docker network disconnect myjlc-net myjlc1
+docker network disconnect myjlc-net myjlc2
+docker network disconnect myjlc-net myjlc3
+
+docker network connect bridge myjlc1
+docker network connect bridge myjlc2
+docker network connect bridge myjlc3
+
+docker network inspect myjlc-net
+
+docker network inspect bridge
+
+Check the Container Communication with Default Bridge Network
+=============================================
+container Ip's
+gateway => 172.17.0.1
+myjlc1 => 172.17.0.2
+myjlc2 => 172.17.0.3
+myjlc3 => 172.17.0.4
+
+host IP: 172.31.20.157
+other host IP:  172.31.39.233
+
+ping -c 5 jlcindia.com
+
+1) Ping the Container from host  // OK
+
+ping -c 5 172.17.0.2
+
+2) Enter into myjlc1 container
+
+docker container exec -it myjlc1 /bin/bash
+
+apt install -y iproute2
+apt install iputils-ping
+
+ip addr show
+
+
+ping -c 5 jlcindia.com
+ping -c 5 172.31.20.157
+ping -c 5 172.31.39.233
+
+//Containers with IP 
+ping -c 5 172.17.0.3
+ping -c 5 172.17.0.4
+
+//Containers with Name
+ping -c 5 myjlc2
+ping -c 5 myjlc3
+
+Note : In default Bridge network , Containers 
+=> can talk each other by Container Ip address only, 
+=> can not talk each other by Container Name.
+
+Explroing Custom Bridge Network
+----------------------------------------------
+
+docker network inspect myjlc-net
+
+docker network inspect bridge
+
+docker network disconnect bridge myjlc1
+docker network disconnect bridge myjlc2
+docker network disconnect bridge myjlc3
+
+docker network connect myjlc-net myjlc1
+docker network connect myjlc-net myjlc2
+docker network connect myjlc-net myjlc3
+
+docker network inspect myjlc-net
+
+docker network inspect bridge
+
+Check the Container Communication with Custom Bridge Network
+=============================================
+container Ip's
+gateway => 172.21.0.1
+myjlc1 => 172.21.0.2
+myjlc2 =>172.21.0.3
+myjlc3 => 172.21.0.4
+
+host IP: 172.31.20.157
+other host IP:  172.31.39.233
+
+ping -c 5 jlcindia.com
+
+1) Ping the Container from host  // OK
+
+ping -c 5 172.21.0.2
+
+2) Enter into myjlc1 container
+
+docker container exec -it myjlc1 /bin/bash
+
+ip addr show
+
+ping -c 5 jlcindia.com
+ping -c 5 172.31.20.157
+ping -c 5 172.31.39.233
+
+//Containers with IP 
+ping -c 5 172.21.0.3
+ping -c 5 172.21.0.4
+
+//Containers with Name
+ping -c 5 myjlc2
+ping -c 5 myjlc3
+
+
+Note : In Custom Bridge network , Containers 
+=> can talk each other by Container Ip address 
+=> can talk each other by Container Name.
+
+Can I have One Container in Two bridge Networks?
+Ans: Yes
+
+docker network inspect bridge  // No Conatiners
+docker network connect bridge myjlc1 
+docker network inspect bridge  // 1 Conatiner
+docker network inspect myjlc-net
+
+docker container inspect myjlc1
+
+-------------------------------
+host network
+
+container runs directly on the Docker host. 
+
+The host networking driver only works on Linux hosts,
+ and is not supported on Docker Desktop for Mac, Docker Desktop for Windows, or Docker EE for Windows Server.
+
+docker container run -d \
+--publish 5599:8080 \
+--network host \
+--name myjlc \
+myjlcapp
+
+WARNING: Published ports are discarded when using host network mode
+
+docker container inspect myjlc
+
+docker network inspect host
+
+ping -c 5 172.31.20.157
+
+ping -c 5 172.31.39.233
+
+docker container exec -it myjlc /bin/bash  //In host network
+
+apt install -y iproute2
+apt install iputils-ping
+
+//Containers with IP 
+ping -c 5 172.21.0.3
+
+//Containers with Name
+ping -c 5 myjlc2
+
+

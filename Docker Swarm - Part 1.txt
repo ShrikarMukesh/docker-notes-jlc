@@ -1,0 +1,245 @@
+Docker Swarm
+============
+Consider 3-Node Clustor
+
+Manager 
+ssh ubuntu@18.218.87.218
+
+Worker 1
+ssh ubuntu@3.145.28.97
+
+Worker 2
+ssh ubuntu@3.12.241.92
+
+Do the Following in all 3 Nodes
+=========================
+docker pull dandesclasses/myjlcapp:v1.0
+
+docker tag  dandesclasses/myjlcapp:v1.0 myjlcapp
+
+docker pull dandesclasses/myjlc-python:v1.0 
+
+docker tag  dandesclasses/myjlc-python:v1.0 myjlc-python:v1.0
+
+docker pull dandesclasses/myjlc-python:v2.0 
+
+docker tag  dandesclasses/myjlc-python:v2.0 myjlc-python:v2.0
+
+ON Manager Node:
+----------------------
+1) 
+docker swarm init --advertise-addr=172.31.28.83
+
+2)List the Nodes
+
+docker node ls
+
+5) List the Nodes
+
+docker node ls
+
+6)  List the Services
+
+docker service ls
+
+7) Create the Service
+
+docker service create  --name=myjlc-service  --replicas=5  --publish 5599:8080 myjlcapp
+
+8)  List the Services
+
+docker service ls
+
+9) List the Containers of service accross Clustor
+
+docker service ps myjlc-service
+
+10)  List the Containers in this Node
+
+docker ps -a
+
+11) Remove the Service
+
+docker service rm myjlc-service
+
+12)  List the Containers in this Node
+
+docker ps -a
+
+15) Create the Service
+
+docker service create  --name=myjlc-service  --replicas=5  --publish 5599:8080 myjlcapp
+
+16) List the Containers of service accross Clustor
+docker service ps myjlc-service
+
+17)  List the Containers in this Node
+
+docker ps -a
+
+20) Scale UP the Servive
+
+docker service scale myjlc-service=9
+
+21)  List the Containers in this Node
+
+docker ps -a
+
+24) Scale Down the Servive
+
+docker service scale myjlc-service=2
+
+25)  List the Containers in this Node
+
+docker ps -a
+
+28) Remove the Service
+
+docker service rm myjlc-service
+
+29)  List the Containers in this Node
+
+docker ps -a
+
+30) Create new Service
+
+docker service create  --name=myjlc-service   --replicas=5  --publish 5555:3000 myjlc-python:v1.0
+
+31) List the Containers of service accross Clustor
+
+docker service ps myjlc-service
+
+32) Access the Application:
+
+http://18.218.87.218:5555     (*****) jlcindia.com
+
+http://3.12.241.92:5555
+
+http://3.145.28.97:5555
+
+33)Scale down/Up the Service
+
+docker service scale myjlc-service=3
+
+docker service scale myjlc-service=2
+
+docker service scale myjlc-service=1
+
+docker service scale myjlc-service=5
+
+34) Update Service with New Image
+
+docker service update --image myjlc-python:v2.0 myjlc-service
+
+Whats happens Internally:
+======================
+a) Change Image from V1.0 from V2.0
+b) Remove V1.0 Containers
+c) Start V2.0 Containers
+
+35) Rollback  if something goes wrong with New Version
+
+docker service rollback myjlc-service
+
+Whats happens Internally:
+======================
+a) Change Image from V2.0 from V1.0
+b) Start V1.0 Containers
+c) Remove V2.0 Containers
+
+Docker Stack
+===========
+docker stack deploy --compose-file myjlc.yml myjlc-stack
+
+docker stack ls
+
+docker stack ps myjlc-stack
+
+docker stack services myjlc-stack
+
+docker service ls
+
+docker service update --image myjlc-python:v2.0 myjlc-service
+
+docker stack rm myjlc-stack
+
+docker service scale myjlc-stack_mynginx=3
+docker service scale myjlc-stack_mytomcat=3
+
+On Worker -1
+----------------------
+3) Join the Worker to Clustor
+
+ docker swarm join --token SWMTKN-1-0bgfofp3r15kcgilcq2giakvt5nxcwit1nfj3ub64ffyv6mtjg-bs4blugqlussgyrntkgem69ex 172.31.28.83:2377
+
+11)  List the Containers in this Node
+
+docker ps -a
+
+13)  List the Containers in this Node
+
+docker ps -a
+
+18)  List the Containers in this Node
+
+docker ps -a
+
+22)  List the Containers in this Node
+
+docker ps -a
+
+26)  List the Containers in this Node
+
+docker ps -a
+
+30)  List the Containers in this Node
+
+docker ps -a
+
+
+
+On Worker -2
+----------------------
+4)
+ docker swarm join --token SWMTKN-1-0bgfofp3r15kcgilcq2giakvt5nxcwit1nfj3ub64ffyv6mtjg-bs4blugqlussgyrntkgem69ex 172.31.28.83:2377
+
+
+12)  List the Containers in this Node
+
+docker ps -a
+
+
+14)  List the Containers in this Node
+
+docker ps -a
+
+19)  List the Containers in this Node
+
+docker ps -a
+
+23)  List the Containers in this Node
+
+docker ps -a
+
+27)  List the Containers in this Node
+
+docker ps -a
+
+31)  List the Containers in this Node
+
+
+33) Start the Linux Instance 
+===================================
+ssh ubuntu@3.145.6.52
+
+while true ; do curl http://18.218.87.218:5555/;sleep 2; echo " ";done
+
+
+
+docker swarm join-token manager
+
+docker swarm join-token worker
+
+
+
+

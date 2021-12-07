@@ -1,0 +1,224 @@
+prune : un-used objects in docker
+Docker objects are Images, Conatiner , Volume , Network 
+
+Un-Used Images and dangling images
+
+docker image prune -a
+docker container prune -a
+docker volume prune -a
+docker network prune -a
+
+docker system prune -a
+
+ docker images Vs  docker image
+
+ docker images : TO List the Images
+
+ docker image :  TO Manage the Images
+
+Commands:
+  build       
+  history   
+  import   
+  inspect  
+  load        
+  ls          
+  prune
+  pull     
+  push   
+  rm       
+  save    
+  tag       
+
+
+============================
+Docker Image Example #3 : Tomcat
+============================
+1) Create the Docker File with name : mytomDockerFile ( custom name)
+
+2) Type the following in mytomDockerFile 
+
+FROM ubuntu:20.04   => Step 1/6
+
+LABEL maintainer sri@jlcindia.com   // No Layer
+
+RUN apt-get -y update   => Step 2/6
+
+RUN apt-get -y install openjdk-8-jdk wget  => Step 3/6
+
+RUN wget https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.55/bin/apache-tomcat-8.5.55.tar.gz -O /tmp/tomcat.tar.gz 
+ => Step 4/6
+
+RUN cd /tmp && tar xvfz tomcat.tar.gz    => Step 5/6
+
+RUN mv /tmp/apache-tomcat-8.5.55 /opt/tomcat   => Step 6/6
+
+EXPOSE 8080   // No Layer
+
+CMD /opt/tomcat/bin/catalina.sh run
+
+
+3) Create the Docker Image from docker file with Tag
+
+a) docker build   .  ( no name , no tag and no docker file)
+b) docker build -t myjlc-tom:v8.5   .  (no docker file)
+c) 
+docker build -t myjlc-tom:v8.5  -f mytomDockerFile  .
+
+4) list the images 
+docker images
+
+myjlc-tom   v8.5      105d1a767f47   About a minute ago   608MB
+
+5) Run the Docker Container with Docker Image 
+
+A)
+docker run -d -P myjlc-tom:v8.5
+
+localhost:49154
+
+docker run -d -P myjlc-tom:v8.5
+
+localhost:49155
+
+B)
+docker run -d -p 8080:8080 myjlc-tom:v8.5
+
+localhost:8080
+
+C)
+docker run -d -p 5599:8080 --name=mytom-c1 myjlc-tom:v8.5
+
+localhost:5599
+
+D)
+docker run -d -p 9955:8080 --name=mytom-c2 myjlc-tom:v8.5
+
+localhost:9955
+
+
+E) Runs the Container in fore-ground
+
+docker run -P  myjlc-tom:v8.5
+
+localhost:9955
+
+Enter into Running Docker Container:
+docker exec -it f82c92fea3c4 /bin/bash
+root@f82c92fea3c4:/#
+
+update index.jsp
+
+echo "<h1> Welcome to JLC <h1>" > index.jsp
+
+=============================================
+Docker Image Example #4 : Spring Boot Application - War 
+==============================================
+1) Create the Docker File with name : myjlcDockerFile1 ( custom name)
+
+2) Type the following in myjlcDockerFile1 
+
+FROM myjlc-tom:v8.5
+LABEL maintainer sri@jlcindia.com
+COPY myjlcapp.war /opt/tomcat/webapps/
+COPY tomcat-users.xml /opt/tomcat/conf/
+EXPOSE 8080
+CMD /opt/tomcat/bin/catalina.sh run
+
+3) Copy Files to Server:
+-----------------------
+scp myjlcapp.war ubuntu@18.191.239.160:/home/ubuntu/mydocker
+scp tomcat-users.xml ubuntu@18.191.239.160:/home/ubuntu/mydocker
+
+4) Create the Docker Image from docker file with Tag
+
+docker build -t myjlcapp1:v1.0 -f myjlcDockerFile1  .
+
+docker build -t myjlcapp1:v1.0 -f myjlcDockerFile1  ./myfiles
+
+5) list the images 
+docker images
+
+myjlcapp1               v1.0      7d68cb309e4c   10 seconds ago   626MB
+
+6) Run the Docker Container with Docker Image 
+
+docker run -d -p 9100:8080 --name=myjlcapp-C1 myjlcapp1:v1.0
+
+localhost:9100/myjlcapp
+
+docker run -d -p 9200:8080 --name=myjlcapp-C2 myjlcapp1:v1.0
+
+localhost:9200/myjlcapp
+
+docker run -d -p 9100:8080 myjlcapp1:v1.0
+=============================================
+Docker Image Example #5 : Spring Boot Application - War 
+==============================================
+1) Create the Docker File with name : myjlcDockerFile2( custom name)
+
+2) Type the following in myjlcDockerFile2
+
+FROM tomcat:8.5.0
+LABEL maintainer sri@jlcindia.com
+COPY myjlcapp.war /usr/local/tomcat/webapps/
+COPY tomcat-users.xml /usr/local/tomcat/conf/
+EXPOSE 8080
+CMD /usr/local/tomcat/bin/catalina.sh run
+
+3) Create the Docker Image from docker file with Tag
+
+docker build -t myjlcapp2:v1.0 -f myjlcDockerFile2 .
+
+4) list the images 
+docker images
+
+myjlcapp2                 v1.0      7d68cb309e4c   10 seconds ago   626MB
+
+5) Run the Docker Container with Docker Image 
+
+docker run -d -p 5100:8080 myjlcapp2:v1.0
+
+localhost:5100/myjlcapp
+
+docker run -d -p 5200:8080 --name=myjlcapp2-C2 myjlcapp2:v1.0
+
+localhost:5200/myjlcapp
+
+/usr/local/tomcat/logs/.....log
+
+================================================
+Docker Image Example #6 :  Spring Boot Apllication - FAT Jar
+================================================
+1) Create the Docker File with name : mybootDockerFile ( custom name)
+
+2) Type the following in mybootDockerFile 
+
+FROM openjdk:8
+ADD myjlcapp-boot.jar myjlcapp-boot.jar
+EXPOSE 54321
+ENTRYPOINT ["java","-jar","myjlcapp-boot.jar"]
+
+3) Copy FAT jar VM Instance
+
+scp myjlcapp-boot.jar ubuntu@18.220.227.57:/home/ubuntu/mydocker
+
+3) Create the Docker Image from docker file with Tag
+
+docker build  -f  mybootDockerFile -t myjlcapp-boot:v1.0 .
+
+4) list the images 
+docker images
+
+5) Run the Docker Container with Docker Image 
+
+docker run -d -p 12345:54321 myjlcapp-boot:v1.0
+docker run -d -p 54321:54321 myjlcapp-boot:v1.0
+
+6) Open the Browser and hit the following
+
+localhost:12345
+localhost:54321
+
+
+

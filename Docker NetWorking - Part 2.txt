@@ -1,0 +1,148 @@
+Overlay network:
+===============
+=> This is Multi-host Network.
+=> This needs a Clustor
+=> Consider 3 Node Clostor
+In Public Cloud , Each node is a VM.
+
+Create 3 EC2 Instances in AWS and Install Docker in All 3 Nodes.
+
+Manager Node:(172.31.28.83)
+ssh ubuntu@18.117.240.108
+
+Worker 1 Node(172.31.18.219)
+ssh ubuntu@52.15.182.40
+
+Worker 2 Node(172.31.24.56)
+ssh ubuntu@18.118.36.130
+
+docker pull dandesclasses/myjlcapp:v1.0
+
+docker tag  dandesclasses/myjlcapp:v1.0 myjlcapp
+
+ docker images
+
+ docker ps -a
+
+docker container rm -f $(docker ps -aq)
+
+ON Manager Node:
+----------------------
+1) docker network ls
+
+4) docker swarm init --advertise-addr=172.31.28.83
+
+5) docker node ls
+
+7) docker node ls
+
+9) docker node ls
+
+10) docker network ls
+
+11)
+docker network create   \
+--driver overlay  \
+--subnet=25.55.0.0/16  \
+--gateway=25.55.0.1  \
+jlc-overlay-net
+
+12) docker network inspect jlc-overlay-net
+
+13) docker network ls
+
+14)
+docker service create  --name=myjlc-service  --replicas=5  --network=jlc-overlay-net myjlcapp
+
+16) docker ps -a
+
+19) 
+docker service ls
+
+20)
+docker service ps myjlc-service
+
+21)
+docker network ls
+docker network inspect jlc-overlay-net
+
+
+On Worker -1
+----------------------
+2) docker network ls
+
+6) docker swarm join --token SWMTKN-1-4eqvuvnfqkwl9e09ru1ue83qd6m5jwzmppn9v8aicnx3m0yp54-ewfmyaihqwcy1l2q5ynmdtpfb 172.31.28.83:2377
+
+14) docker network ls
+
+17)
+docker ps -a
+
+docker network ls
+
+22)
+docker network ls
+docker network inspect jlc-overlay-net
+
+
+docker ps -a
+
+
+On Worker -2
+----------------------
+3) docker network ls
+
+8)
+ docker swarm join --token SWMTKN-1-4eqvuvnfqkwl9e09ru1ue83qd6m5jwzmppn9v8aicnx3m0yp54-ewfmyaihqwcy1l2q5ynmdtpfb 172.31.28.83:2377
+
+
+15) docker network ls
+
+18)
+docker ps -a
+
+docker network ls
+
+
+23)
+docker network ls
+docker network inspect jlc-overlay-net
+
+===========================
+
+docker container exec -it myjlc-service.5.43g6pair5x1u5i32q5b6luc0i /bin/bash
+
+apt install -y iproute2
+apt install iputils-ping
+
+ip addr show
+
+
+ping -c 5 25.55.0.31
+ping -c 5 25.55.0.33
+ping -c 5 25.55.0.34
+ping -c 5 25.55.0.30
+ping -c 5 25.55.0.32
+
+==================
+Worker-2
+======
+myjlc-service.4.0gxlbn8q9rnj2zyxa3avay0ly
+25.55.0.30
+
+myjlc-service.1.xm68yr4z2nytbtem2htosng5p
+25.55.0.32
+
+Worker-1
+======
+myjlc-service.3.htzypdfsu4qz1w9b6obpbbnqe
+25.55.0.34
+
+Manager
+======
+myjlc-service.5.43g6pair5x1u5i32q5b6luc0i
+25.55.0.31
+
+myjlc-service.2.4kkynxdxj5tmdyjyhajzcg9fe
+25.55.0.33
+

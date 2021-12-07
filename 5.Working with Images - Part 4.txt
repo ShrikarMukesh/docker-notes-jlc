@@ -1,0 +1,386 @@
+
+sir, Where exactly we should configure if we want to point to our own public Repository(Third party) instead of default Docker hub public Repo ?
+
+We are yet to be discussed on followings
+Diff bw COPY and ADD
+Diff bw CMD and ENTRYPOINT
+Diff bw Unused and Dangling
+
+Can we push to gcr.io with free account?
+
+Saving Image
+
+Exploring docker images
+------------------------------------
+Usage:  docker images [OPTIONS] [REPOSITORY[:TAG]]
+
+List images
+
+Ex:
+docker images
+docker images -a
+
+
+Exploring docker image
+-------------------------------
+
+Usage:  docker image COMMAND
+
+Manage images
+
+Commands:
+  build       Build an image from a Dockerfile
+  tag         Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE
+  history     Show the history of an image
+  inspect     Display detailed information on one or more images
+  ls          List images
+  rm          Remove one or more images
+  prune       Remove unused images
+  pull        Pull an image or a repository from a registry
+  push        Push an image or a repository to a registry
+  save        Save one or more images to a tar archive (streamed to STDOUT by default)
+  load        Load an image from a tar archive or STDIN
+
+
+=======================================
+1) docker image build
+
+2) docker image tag
+
+3) docker image history
+
+4) docker image inspect     
+
+5) docker image ls
+
+6) docker image rm          
+
+7) docker image prune
+
+8) docker image pull
+
+9) docker image push
+
+10)docker image save
+
+11) docker image load
+
+Docker file Commands:
+-------------------------------
+FROM
+LABEL
+RUN
+COPY
+ADD
+CMD
+ENTRYPOINT
+WORKDIR
+etc
+========================================
+
+8) docker image pull
+=> No Account/Login REquired to pull
+
+docker pull tomcat:8.5
+
+docker image pull tomcat:8.5
+
+9) docker image push
+=> You must login to Docker Hub.
+
+docker push myjlcapp-boot:v1.0
+docker image push myjlcapp-boot:v1.0  // No Repository is specified 
+
+Prepare the Release Tag
+docker tag myjlcapp-boot:v1.0 dandesclasses/myjlcapp-boot:v1.0 
+docker image tag myjlcapp-boot:v1.0 dandesclasses/myjlcapp-boot:v1.0 
+
+docker login
+
+docker image push dandesclasses/myjlcapp-boot:v1.0   
+
+docker logout
+
+docker run -d -p 5678:8080 myjlcapp-boot:v1.0  //Error
+
+docker run -d -p 5678:54321 dandesclasses/myjlcapp-boot:v1.0
+docker run -d -p 5679:54321 dandesclasses/myjlcapp-boot:v1.0
+
+docker container run -d -p 5678:54321 dandesclasses/myjlcapp-boot:v1.0
+
+18.117.77.80:7777/myjlcapp
+
+10)docker image save
+
+docker image save c3b4eb802ef6 -o myjlcapp-boot.tar.gz
+
+11) docker image load
+
+docker image load -i myjlcapp-boot.tar.gz
+
+===================================
+
+docker tag 6fc68373e363 dandesclasses/jlc-hello-world
+
+docker pull dandesclasses/jlc-hello-world
+
+docker tag myjlcapp:v1.0 dandesclasses/myjlcapp:v1.0
+
+docker push dandesclasses/myjlcapp:v1.0
+
+Questions
+--------------
+A) Ways to Create the Docker Image
+--------------------------------------
+1) From Commands
+-------------------------
+ Take Image ,
+Create and Start the Container
+ Enter into running Container
+Run Commands
+Commit the Container Changes as Image
+
+2) Using Docker File ( Based on Image)
+
+3) From the Scratch ( without any Image)
+
+B) Commands to Manage the Images
+
+
+Docker Architecture
+------------------------------
+
+
+Working with Containers
+====================
+=> When you create the Container with an Image then it creates Writable Layer 
+
+=> Writable Layer Label is called as Container.
+
+Usage:  docker container COMMAND
+
+Manage containers
+
+Commands:
+  commit      Create a new image from a container's changes
+  logs        Fetch the logs of a container
+  ls          List containers
+  rename      Rename a container
+  exec        Run a command in a running container
+
+  create      Create a new container
+  start       Start one or more stopped containers
+  run         Run a command in a new container
+  stop        Stop one or more running containers
+  restart     Restart one or more containers
+  pause       Pause all processes within one or more containers
+  unpause     Unpause all processes within one or more containers
+
+  kill        Kill one or more running containers
+  rm          Remove one or more containers
+  prune       Remove all stopped containers
+
+  port        List port mappings or a specific mapping for the container
+  inspect     Display detailed information on one or more containers
+
+  attach      Attach local standard input, output, and error streams to a running container
+  cp          Copy files/folders between a container and the local filesystem
+  diff        Inspect changes to files or directories on a container's filesystem
+  export      Export a container's filesystem as a tar archive
+
+
+  stats       Display a live stream of container(s) resource usage statistics
+  top         Display the running processes of a container
+  update      Update configuration of one or more containers
+  wait        Block until one or more containers stop, then print their exit codes
+
+Container lifecycle:
+--------------------------
+1)Create container
+
+=> Create a container to run it later on
+=> Creates the Writable Layer on top of Read-only Layers.
+
+docker run  => Creates and Starts
+
+2)Start
+=> Startes the Already Created Container
+
+docker start  =>  Starts
+
+3)Pause 
+=> Pauses the Container for specified amout of time/ for long time until resumes.
+
+When to Pause the Container:
+=> You can pause the Front-end Container until the Backend Container is Up and Ready
+
+docker pause =>  Pauses
+
+4)Unpause 
+=> Unpauses the Paused Container.
+
+=> When the Backend Container is Up and then you can unpause the Front-end Container
+
+docker unpause =>  Pauses
+
+5)Stop 
+=> Normal Termination of the Container
+
+docker stop =>  Stops
+
+6)Kill
+=> Abnormal Termination of the Container forcefully.
+
+
+docker kill =>  Kills
+
+7)Delete
+=> Delete the Writable Layer and its References.
+
+docker rm =>  Removes
+
+Note :
+docker restart => docker stop  + docker start
+
+1) Detahced Mode
+---------------------
+docker run 
+-d 
+-p
+--name
+
+Ex:
+
+docker run -d -p 5678:8080 --name myjlc-c1 dandesclasses/myjlcapp:v1.0 
+
+docker create dandesclasses/myjlcapp:v1.0 
+
+2) Executable/Interactive Mode
+---------------------
+docker exec 
+-it  
+containerID
+command
+
+Ex:
+
+docker exec e01b68503dbd ps
+docker exec e01b68503dbd ls
+
+docker exec -it e01b68503dbd ls
+docker exec -it e01b68503dbd /bin/bash
+
+
+
+
+Checking Container Logs:
+----------------------------------
+docker logs 980d343ccdea
+
+docker logs -f e01b68503dbd
+
+docker logs --since=5m e01b68503dbd
+
+docker logs -f --since=5m e01b68503dbd
+
+Opening Container in Interactive Mode:
+----------------------------------------------
+docker exec -it Container_ID /bin/bash
+
+docker exec -it d37df9dde334 /bin/bash
+
+Creating Image from Updated Container:
+----------------------------------------------------
+docker commit d37df9dde334 myupdated-tom:v8
+
+
+Delete the Container:
+-----------------------
+A) Delete Specific Container
+
+docker rm 9a8a87d12e88 
+
+B) Delete All Containers
+
+docker rm $(docker ps -aq)
+
+
+Stoping Container 
+-----------------------
+A) Stop Specific Container 
+
+ docker stop 28a3f3041cfe
+
+B) Stop All Containers
+
+docker stop $(docker ps -aq)
+
+
+Start Container 
+-----------------------
+A) Start Specific Container 
+
+ docker start ContainerId
+ docker start 5e734cd9b8bf 
+
+B) Start All Containers
+
+docker start $(docker ps -aq)
+
+Re-Start Container 
+-----------------------
+A) Re-Start Specific Container 
+
+ docker restart d37df9dde334 
+
+B) Re-Start All Containers
+
+docker restart  $(docker ps -aq)
+
+Pause Container 
+-----------------------
+A) Pause  Specific Container 
+
+ docker pause e01b68503dbd 
+
+B) Pause   All Containers
+
+docker pause $(docker ps -aq)
+
+Un-Pause Container 
+-----------------------
+A) Un-Pause Specific Container 
+
+ docker unpause e01b68503dbd 
+
+B) Un-Pause All Containers
+
+docker unpause $(docker ps -aq)
+
+Kill Container 
+-----------------------
+A) Kill  Specific Container 
+
+ docker kill 62ccff56ce3b 
+
+B) Kill  All Containers
+
+docker kill $(docker ps -aq)
+
+================================>
+docker create dandesclasses/myjlcapp:v1.0
+docker start dandesclasses/myjlcapp:v1.0 --name=myjlc-c3 // Not OK
+docker start 62ccff56ce3b 
+
+ docker stop e01b68503dbd 
+ docker start 62ccff56ce3b 
+================================>
+
+Docker Hub
+
+Docker Desktop
+WSL2 
+
+
+
+

@@ -1,0 +1,198 @@
+Working with Containers
+====================
+
+Container lifecycle diagram 
+
+=> When you create the Container with an Image then it creates Writable Layer 
+
+=> Writable Layer Label is called as Container.
+
+Usage:  docker container COMMAND
+
+Manage containers
+
+Commands:
+  commit      Create a new image from a container's changes
+  logs        Fetch the logs of a container
+  ls          List containers
+  rename      Rename a container
+  exec        Run a command in a running container
+
+  create      Create a new container
+  start       Start one or more stopped containers
+  run         Run a command in a new container
+  stop        Stop one or more running containers
+  restart     Restart one or more containers
+  pause       Pause all processes within one or more containers
+  unpause     Unpause all processes within one or more containers
+
+  kill        Kill one or more running containers
+  rm          Remove one or more containers
+  prune       Remove all stopped containers
+
+  port        List port mappings or a specific mapping for the container
+  inspect     Display detailed information on one or more containers
+
+  attach      Attach local standard input, output, and error streams to a running container
+  cp          Copy files/folders between a container and the local filesystem
+  diff        Inspect changes to files or directories on a container's filesystem
+  export      Export a container's filesystem as a tar archive
+
+
+  stats       Display a live stream of container(s) resource usage statistics
+  top         Display the running processes of a container
+  update      Update configuration of one or more containers
+  wait        Block until one or more containers stop, then print their exit codes
+
+Commands:
+1) docker container commit     
+----------------------------------------
+ Create a new image from a container's changes
+
+
+2) docker container  logs    
+-----------------------------------
+   Fetch the logs of a container
+
+ex:
+docker logs 980d343ccdea
+
+docker logs -f e01b68503dbd
+
+docker logs --since=5m e01b68503dbd
+
+docker logs -f --since=5m e01b68503dbd
+
+3) docker container  ls 
+-------------------------------
+      List containers
+
+4) docker container rename    
+-------------------------------------
+  Rename a container
+
+5)docker container  exec  
+----------------------------------
+      Enter into a running container
+
+6)docker container  create  
+---------------------------------
+    Create a new container
+
+docker create myjlc
+docker container  create myjlc
+
+docker container rename e91b6bc4def9 mycontainer-1
+docker container rename 7671292476cb mycontainer-2
+
+7) docker container  start   
+    Start one or more stopped containers
+
+Ex:
+docker start    e91b6bc4def9 
+docker container  start   7671292476cb 
+
+8) docker container  stop      
+  Stop one or more running containers  ( Safe Exit)
+
+Ex:
+docker stop e91b6bc4def9 
+docker container  stop 7671292476cb 
+
+8) docker container  run   
+     Run a command in a new container
+
+ex:
+
+docker run -d -P --name=jlc1 myjlc
+docker container run -d -P --name=jlc2 myjlc
+docker container run -d -P --name=jlc3 myjlc
+
+
+9)docker container  restart  
+   Restart one or more containers
+
+ex:
+docker restart  87dc009ceb5b 
+docker container  restart  ba26203df69a 
+
+
+10) docker container   pause      
+ Pause all processes within one or more containers
+
+ex:
+docker stop 87dc009ceb5b 
+docker pause    ba26203df69a 
+
+docker container  pause  ba26203df69a 
+docker container  unpause  ba26203df69a 
+
+11)docker container  unpause    
+ Unpause all processes within one or more containers
+
+docker unpause  ba26203df69a 
+docker container  unpause  ba26203df69a 
+
+12) docker container  kill     
+   Kill one or more running containers ( Unsafe Exit)
+
+ex:
+docker kill ba26203df69a 
+docker container kill ba26203df69a 
+
+docker container start 87dc009ceb5b 
+docker container start ba26203df69a 
+
+create start run stop kill restart pause unpause
+
+13) docker container  rm  
+       Remove one or more containers
+
+ex:
+docker container  rm  -f 87dc009ceb5b 
+docker rm  -f  87dc009ceb5b 
+
+14) docker container   prune    
+   Remove all stopped containers
+
+ex:
+docker container   prune
+docker container  stop ba26203df69a 
+docker container   prune
+docker container  pause 7f3c38ebd065 
+docker container   prune
+
+15) docker container  port  
+      List port mappings or a specific mapping for the container
+
+ex:
+docker container  port 7f3c38ebd065 
+
+  inspect     Display detailed information on one or more containers
+
+  attach      Attach local standard input, output, and error streams to a running container
+  cp          Copy files/folders between a container and the local filesystem
+  diff        Inspect changes to files or directories on a container's filesystem
+  export      Export a container's filesystem as a tar archive
+
+
+  stats       Display a live stream of container(s) resource usage statistics
+  top         Display the running processes of a container
+  update      Update configuration of one or more containers
+  wait        Block until one or more containers stop, then print their exit codes
+
+
+Opening Container in Interactive Mode:
+----------------------------------------------
+docker exec -it Container_ID /bin/bash
+
+docker exec -it d37df9dde334 /bin/bash
+
+Creating Image from Updated Container:
+----------------------------------------------------
+docker commit d37df9dde334 myupdated-tom:v8
+
+
+
+
+

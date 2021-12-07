@@ -1,0 +1,264 @@
+Working with Images
+----------------------------
+=> Image is set of Read-Only Layers/Set of Commands
+=> Image is Immutable. 
+=> You can Create one or more Container from One Image.
+
+Class and Object.
+Class is Template or BluePrint
+Object is Runtime Entity.
+
+You can Create the Image in 3 Ways
+A)Using Commands
+B)Using Dockerfile (***)
+C)from the Scratch
+
+A)Building Docker Image Using Commands
+======================================
+Docker Image Example #1 : Hello Java Application
+=====================================
+1)Enter to the Container in Interactive Mode
+
+docker run -it  ubuntu:20.04
+
+docker run -it --name=myhelloapp-c1 ubuntu:20.04
+root@d3db5d9300b1:/#
+
+java -version
+apt-get update
+apt-get install vim
+apt-get install openjdk-8-jdk
+java -version
+mkdir /home/myjlc
+cd /home/myjlc
+touch Hello.java 
+vim Hello.java
+javac Hello.java
+java Hello
+
+
+
+public class Hello{
+        public static void main(String as[]){
+                System.out.println("Hello Guys, welcome to JLC Docker class !!!");
+        }
+}
+
+Ctrl + PQ
+
+2) Create the Docker Image from Updated Container.
+ 
+docker commit b05884a3f6f2 myhelloapp:v1.0
+
+3) list the images 
+docker images
+
+
+4) Run the Docker Container with your Docker Image 
+
+docker run -d myhelloapp => Error
+docker run -d myhelloapp:v1.0
+docker run -d --name=mycontainer1 myhelloapp:v1.0
+============================
+Docker Image Example #2 : Hai Java Application
+============================
+1)Enter to the Container in Interactive Mode
+
+docker pull openjdk:8
+
+docker run -it --name=myhaiapp-C1 openjdk:8
+root@f2e0dbb0131c:/#
+
+java -version
+apt-get update
+apt-get install vim
+mkdir /home/myjlc
+cd /home/myjlc
+touch Hai.java
+vim Hai.java
+javac Hai.java
+java Hai.java
+
+
+
+public class Hai{
+        public static void main(String as[]){
+                System.out.println("Hai Guys, welcome to JLC Docker class !!!");
+        }
+}
+
+2) Create the Docker Image from Updated Container.
+ 
+docker commit 5a3dfe8d42f9 myhaiapp:v1.0
+
+3) list the images 
+docker images
+
+
+4) Run the Docker Container with Docker Image 
+
+docker run -d myhaiapp  //Error
+docker run -d myhaiapp:v1.0
+
+we. created our own image using Ubuntu
+then some image got deleted in base ubuntu image
+what happens to our container running it
+
+B)Using Dockerfile (***)
+============================
+Dockerfile commands/Instrauctions
+FROM
+LABEL
+RUN
+COPY
+WORKDIR
+CMD
+
+Docker Image Example #1 : Hello App with Dockerfile
+============================
+1) Create the Docker File with name : Dockerfile ( default name)
+
+2) Type the following in Dockerfile
+
+FROM ubuntu:20.04
+LABEL maintainer sri@jlcindia.com
+RUN apt-get -y update 
+RUN apt-get -y install openjdk-8-jdk wget
+RUN mkdir /home/myjlc
+COPY Hello.java /home/myjlc
+WORKDIR /home/myjlc
+RUN javac Hello.java
+CMD ["java", "Hello"]
+
+
+public class Hello{
+        public static void main(String as[]){
+                System.out.println("Hello Guys, welcome to JLC Docker class !!!");
+                System.out.println("--You are learning Docker from Srinivas Dande--");
+        }
+}
+
+3) Create the Docker Image from docker file.
+ 
+docker build .
+
+4) list the images 
+docker images
+
+<none>       <none>    6994dfe9f7c2 10 seconds ago   568MB
+
+5) Tag the Docker Image
+
+docker tag 6994dfe9f7c2 myhello:v1.0
+
+6) list the images 
+docker images
+
+myhello      v1.0      395bbbb82f02   38 seconds ago   568MB
+
+7) Run the Docker Container with Docker Image 
+
+docker run myhello:v1.0
+
+============================
+Docker Image Example #2 : Hai App with Dockerfile
+============================
+1) Create the Docker File with name : Dockerfile ( default name)
+
+2) Type the following in Dockerfile
+
+FROM openjdk:8
+LABEL maintainer sri@jlcindia.com
+RUN mkdir /home/myjlc
+COPY Hai.java /home/myjlc
+WORKDIR /home/myjlc
+RUN javac Hai.java
+CMD ["java", "Hai"]
+
+public class Hai{
+        public static void main(String as[]){
+                System.out.println("Hai Guys, welcome to JLC Docker class !!!");
+                System.out.println("--You are learning Docker from Srinivas Dande--");
+        }
+}
+
+3) Create the Docker Image from docker file with Tag
+
+docker build -t myhai:v1.0 .
+
+4) list the images 
+docker images
+
+myhai        v1.0      40c044defbac   16 seconds ago   526MB
+
+5) Run the Docker Container with Docker Image 
+
+docker run myhai:v1.0
+
+
+============================
+Docker Image Example #3 : Tomcat
+============================
+1) Create the Docker File with name : mytomDockerFile ( custom name)
+
+2) Type the following in mytomDockerFile 
+
+FROM ubuntu:20.04
+
+LABEL maintainer sri@jlcindia.com
+
+RUN apt-get -y update 
+
+RUN apt-get -y install openjdk-8-jdk wget
+
+RUN wget https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.55/bin/apache-tomcat-8.5.55.tar.gz -O /tmp/tomcat.tar.gz
+
+RUN cd /tmp && tar xvfz tomcat.tar.gz
+
+RUN mv /tmp/apache-tomcat-8.5.55 /opt/tomcat
+
+EXPOSE 8080
+
+CMD /opt/tomcat/bin/catalina.sh run
+
+
+3) Create the Docker Image from docker file with Tag
+
+a) docker build   .
+b) docker build -t myjlc-tom:v8.5   .
+c) 
+docker build -t myjlc-tom:v8.5  -f mytomDockerFile  .
+
+4) list the images 
+docker images
+
+myjlc-tom   v8.5      105d1a767f47   About a minute ago   608MB
+
+5) Run the Docker Container with Docker Image 
+
+A)
+docker run -d -P myjlc-tom:v8.5
+
+localhost:49153
+
+B)
+docker run -d -p 8080:8080 myjlc-tom:v8.5
+
+localhost:8080
+
+C)
+docker run -d -p 5599:8080 --name=mytom-C1 myjlc-tom:v8.5
+
+localhost:5599
+
+D)
+docker run -d -p 9955:8080 --name=mytom-C2 myjlc-tom:v8.5
+
+localhost:9955
+
+
+
+
+
+
+

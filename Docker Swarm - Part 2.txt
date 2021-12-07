@@ -1,0 +1,259 @@
+Manager 
+ssh ubuntu@3.144.221.60
+
+Worker 1
+ssh ubuntu@3.145.116.192
+
+Worker 2
+ssh ubuntu@13.59.49.102
+
+sudo hostnamectl set-hostname Manager
+sudo hostnamectl set-hostname Worker-1
+sudo hostnamectl set-hostname Worker-2
+
+docker pull dandesclasses/myjlcapp:v1.0
+
+docker tag  dandesclasses/myjlcapp:v1.0 myjlcapp
+===================================
+Q1) How to Start One Container per Image?
+Ans: docker run -d ....
+
+Q2) How to Start 50 Containers per Image?
+Ans: 
+
+docker run -d .... - 50 times //very bad
+docker-compose   ---//best
+
+Q3) Can I run my container on the cluster with docker-compose ?
+Ans: No , docker-compose is for single node only 
+
+Q4) How Can I run my containers on the Cluster?
+Ans:
+Docker swarm - Container Orchestration tool
+
+Q5) How to Create multiple Containers for Image on the cluster in Dcoker swarm?
+Ans: Docker service - replicas for image
+
+***Q6) How to Create multiple Containers for Multiple Image on Multiple Hosts?
+Ans: Docker Stack
+
+Single Container = Single Image = Single Host => docker run
+Multiple Containers = Single Image = Single Host => docker compose
+Multiple Containers = Multiple Images = Single Host =>  docker compose
+
+Multiple Containers = Single Image = Multiple Hosts => docker service
+Multiple Containers = Multiple Images = Multiple Hosts => docker stack
+
+===================================
+ON Manager Node:
+----------------------
+
+docker swarm init
+=============================================
+Swarm initialized: current node (t07scausvc1o1y7cdpjordmll) is now a manager.
+
+To add a worker to this swarm, run the following command:
+
+    docker swarm join --token SWMTKN-1-21np5xwz8aixg2pf4gbf3wkqfezz8p105zjqmckaylo2hsk4bu-0a2717af30q3ee3y9ub2s94qd 172.31.17.11:2377
+
+To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+=============================================
+
+docker node ls
+
+docker service ls
+
+docker service create  --name=myjlc-service  --replicas=5  --publish 5599:8080 myjlcapp
+
+docker service ls
+
+docker service ps myjlc-service
+
+docker ps -a
+
+docker service scale myjlc-service=10
+
+docker service ps myjlc-service
+
+docker service scale myjlc-service=2
+
+docker service ps myjlc-service
+
+docker service rm myjlc-service
+
+Docker Stack
+============
+
+docker service  - creates mutiple Container for one image across clustor
+docker compose - creates mutiple Container for Mutiple image on single node
+
+docker stack-   docker service  + docker compose 
+
+creates mutiple Container for multiple image across clustor
+
+docker stack is collection of docker services.
+
+===========
+myjlc.yml
+==========
+version: '3'
+services:
+  mynginx:
+    image: nginx 
+    ports: 
+      - "80"
+    restart: always
+    network_mode: jlc-overlay-net
+  mytomcat:
+    image: tomcat 
+    ports:
+      - "8080"
+    network_mode: jlc-overlay-net
+    restart: always
+networks:
+  jlc-overlay-net: 
+==========================
+scp myjlc.yml ubuntu@3.144.221.60:/home/ubuntu/myjlc
+
+docker stack deploy --compose-file myjlc.yml myjlc-stack
+
+docker stack ls
+
+docker stack ps myjlc-stack
+
+docker stack services myjlc-stack
+
+docker service ls
+
+docker service update --image NewImage Service-Name
+
+docker service scale myjlc-stack_mynginx=2
+
+docker service scalemyjlc-stack_mytomcat=3
+
+docker stack rm myjlc-stack
+
+===========
+myjlc.yml
+==========
+version: '3'
+services:
+  jlcapp:
+    image: myjlcapp
+    ports: 
+      - "8080"
+  mynginx:
+    image: nginx 
+    ports: 
+      - "80"
+  mytomcat:
+    image: tomcat 
+    ports:
+      - "8080"
+=================================
+scp myjlc.yml ubuntu@3.144.221.60:/home/ubuntu/myjlc
+
+docker stack deploy --compose-file myjlc.yml mystack
+
+docker stack services mystack
+
+docker service ls
+
+mystack_jlcapp       1/1        myjlcapp:latest   *:30002->8080/tcp
+  mystack_mynginx    1/1        nginx:latest      *:30003->80/tcp
+  mystack_mytomcat   1/1        tomcat:latest     *:30004->8080/tcp
+
+3.144.221.60:30002/myjlcapp
+3.144.221.60:30003
+3.144.221.60:30004
+
+docker service scale mystack_mytomcat=2
+docker service scale mystack_mynginx=2
+docker service scale mystack_jlcapp=3
+
+docker stack services mystack
+
+docker service ls
+
+docker stack rm mystack
+
+===========
+myjlc.yml
+==========
+version: '3'
+services:
+  jlcapp:
+    image: myjlcapp
+    deploy:
+      replicas: 4
+    ports: 
+      - "8080"
+  mynginx:
+    image: nginx 
+    deploy:
+      replicas: 3
+    ports: 
+      - "80"
+  mytomcat:
+    image: tomcat 
+    deploy:
+      replicas: 3
+    ports:
+      - "8080"
+=====================================
+scp myjlc.yml ubuntu@3.144.221.60:/home/ubuntu/myjlc
+
+docker stack deploy --compose-file myjlc.yml mystack
+
+docker stack services myjlc-stack
+
+docker service ls
+
+=====================================
+
+docker stack deploy		Deploy a new stack or update an existing 
+docker stack ls		List stacks
+docker stack ps		List the tasks in the stack
+docker stack rm		Remove one or more stacks
+docker stack services	List the services in the stack
+
+On Worker -1
+----------------------
+
+ docker swarm join --token SWMTKN-1-426lasrs35yecp1ctt5xv1wqzncc5ccn4zhlgxxljgzq4lk5pj-c0scgqouw9xvxjuxaj2c28508 172.31.28.83:2377
+
+docker images
+
+docker ps -a
+
+On Worker -2
+----------------------
+ docker swarm join --token SWMTKN-1-426lasrs35yecp1ctt5xv1wqzncc5ccn4zhlgxxljgzq4lk5pj-c0scgqouw9xvxjuxaj2c28508 172.31.28.83:2377
+
+docker images
+
+docker ps -a
+
+===================================
+docker swarm join-token worker
+
+docker swarm join-token manager
+
+
+docker swarm leave
+
+docker swarm leave --force
+==========================
+
+Docker Images
+Docker Containers
+Docker Volums
+Docker Networks
+Docker Compose
+Docker Swarm
+Docker Stack
+Docker Desktop
+
+
+
+

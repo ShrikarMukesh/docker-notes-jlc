@@ -1,0 +1,119 @@
+ssh ubuntu@3.144.177.143
+
+Docker Compose :
+=============
+sudo apt  install docker-compose
+
+Creating Image 
+Creating Containers for Image***
+Creating Volumes and Networking
+
+Doker Workflow:
+============
+Step 1: Write the Dockerfile
+
+Step 2: Build an Image
+docker image build ......    //myjlcapp
+
+Step 3: Create Container
+docker container run    // Starts Only One Container
+
+Step 4: Reduce/Increase the Containers
+docker container stop    
+
+Step 5: Remove the Containers
+docker container rm
+
+Goal : Need to Create 25 Containers for One Image with required Volume and Network.
+
+You can use Docker Compose 
+
+key1 = value 1
+key2 = value 2
+docker-compose build
+
+1) Write the docker compose file 
+default name : docker-compose.yml
+===============================
+version: '3'
+services:
+  jlc-app:
+    image: myjlcapp
+    ports: 
+      - "8080"
+    restart: always 
+    network_mode: bridge
+    volumes:
+      - mylogsVolume:/opt/tomcat/logs
+
+volumes:
+  mylogsVolume:
+
+===============================
+ssh ubuntu@3.140.255.247
+
+scp docker-compose.yml ubuntu@3.140.255.247:/home/ubuntu/mydocker
+
+docker-compose up -d 
+
+docker ps
+
+3.140.255.247:49153/myjlcapp
+
+docker-compose up --scale jlc-app=5 -d
+
+docker-compose up --scale jlc-app=2 -d
+
+docker-compose down
+
+
+===============================
+myjlc.yml
+===============================
+version: '3'
+services:
+  mynginx:
+    image: nginx 
+    ports: 
+      - "80"
+    restart: always
+    network_mode: jlc-bridge-net
+  mytomcat:
+    image: tomcat:8.5
+    ports:
+      - "8080"
+    network_mode: jlc-bridge-net
+    restart: always
+networks:
+  jlc-bridge-net: 
+
+===============================
+scp myjlc.yml ubuntu@3.144.177.143:/home/ubuntu/mydocker
+
+docker network create --driver=bridge  jlc-bridge-net
+
+docker-compose  -f myjlc.yml up -d   //uses custom file name
+
+docker ps
+
+docker-compose -f myjlc.yml up --scale mynginx=2 --scale mytomcat=3 -d
+docker-compose -f myjlc.yml up --scale mynginx=3 --scale mytomcat=5 -d
+docker-compose -f myjlc.yml up --scale mynginx=0 --scale mytomcat=5 -d
+
+docker-compose -f myjlc.yml down
+===========================
+
+mytomcat_1 
+mytomcat_2
+
+mytomcat_3
+mytomcat_4
+
+mytomcat_5 - Changing this
+
+If i modified one container properties will it be applicable gor all containers?
+
+Ex if i modify tomcat-1 property will it be applicable for tomcat-2 and other?
+
+
+ 

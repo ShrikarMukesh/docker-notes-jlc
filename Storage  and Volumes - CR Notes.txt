@@ -1,0 +1,202 @@
+ssh ubuntu@3.142.131.170
+
+docker pull dandesclasses/myjlcapp:v1.0
+
+docker image tag dandesclasses/myjlcapp:v1.0 myjlcapp
+
+Docker has 3 options for containers to store files in the host machine
+
+1) tmpfs mounts 
+2) Bind mounts
+3) Volumes
+
+
+1) tmpfs mounts: 
+============
+=> A tmpfs mount is not persisted on disk, either on the Docker host or within a container. 
+=> It can be used by a container during the lifetime of the container, to store non-persistent state or sensitive information.
+
+Use cases for tmpfs mounts
+============================
+i) tmpfs mounts are best used for cases when you do not want the data to persist either on the host machine or within the container.
+
+ii) This may be for security reasons or to protect the performance of the container when your application needs to write a large volume of non-persistent state data.
+
+Ex:
+docker run -d \
+--publish 2345:8080 \
+--name=myjlc1 \
+--mount type=tmpfs,destination=/jlcapp \
+myjlcapp:latest
+
+Source is Main Memory
+destination is location in Container
+
+18.118.122.149:2345/myjlcapp
+
+docker inspect myjlc1
+
+        "Mounts": [
+            {
+                "Type": "tmpfs",
+                "Source": "",
+                "Destination": "/jlcapp",
+                "Mode": "",
+                "RW": true,
+                "Propagation": ""
+            }
+        ],
+
+docker container exec -it myjlc1 /bin/bash
+
+
+2) Bind mounts:
+===========
+=>  When you use a bind mount, a file or directory on the host machine is mounted into a container.
+=> The file or directory does not need to exist on the Docker host already. It is created on demand if it does not yet exist. 
+=> Bind mounts are very performant, but they rely on the host machine’s filesystem having a specific directory structure available. 
+
+Use cases for bind mounts
+======================
+i) Sharing configuration files from the host machine to containers. 
+
+Ex:
+This is how Docker provides DNS resolution to containers by default, by mounting /etc/resolv.conf from the host machine into each container.
+
+ii) Sharing source code or build artifacts between a development environment on the Docker host and a container. 
+
+Ex:
+You may mount a Maven target/ directory into a container, and each time you build the Maven project on the Docker host, the container gets access to the rebuilt artifacts.
+
+Ex:
+docker run -d  \
+--publish 2346:8080 \
+--name=myjlc2  \
+--mount type=bind,source=/home/ubuntu/test,destination=/jlcapp  \
+myjlcapp
+
+18.118.122.149:2346/myjlcapp
+
+Source is in Host FS
+Destination is in Container FS
+
+docker container inspect myjlc2
+
+docker run -d  \
+--publish 2347:8080 \
+--name=myjlc3  \
+--mount type=bind,source=/home/ubuntu/mylogs,destination=/opt/tomcat/logs  \
+myjlcapp
+
+3.142.131.170:2347/myjlcapp
+
+docker exec -it myjlc3 /bin/bash
+
+
+
+18.222.203.27:1236
+
+root@8131ccc5ba51:/opt/tomcat/logs
+
+docker inspect myjlc3
+
+           "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/ubuntu/jlchome",
+                "Destination": "/jlcapp",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+
+
+
+3) Volumes: 
+============
+=> Created and managed by Docker. 
+=> You can create a volume explicitly using the docker volume create command,
+=> Docker can create a volume during container or service creation.
+
+=> When you create a volume, it is stored within a directory on the Docker host. 
+
+=> Volumes are stored in a part of the host filesystem which is managed by Docker (/var/lib/docker/volumes/ on Linux). 
+
+=> Volumes are the best way to persist data in Docker.
+
+
+=> A given volume can be mounted into multiple containers simultaneously. When no running container is using a volume, the volume is still available to Docker and is not removed automatically. 
+
+=> You can remove unused volumes using docker volume prune.
+
+=> Volumes also support the use of volume drivers, which allow you to store your data on remote hosts or cloud providers, among other possibilities.
+
+
+Use cases for volumes
+==================
+i) Sharing data among multiple running containers. 
+
+ii) When the Docker host is not guaranteed to have a given directory or file structure. Volumes help you decouple the configuration of the Docker host from the container runtime.
+
+iii) When you want to store your container’s data on a remote host or a cloud provider, rather than locally.
+
+iv) When you need to back up, restore, or migrate data from one Docker host to another, volumes are a better choice. 
+
+v) When your application requires high-performance I/O on Docker Desktop. Volumes are stored in the Linux VM rather than the host, which means that the reads and writes have much lower latency and higher throughput.
+
+docker run -d --name=myjlc4 -v /home/ubuntu/jlchome:/jlcapp  nginx
+
+docker run -d  -p 1237:80 --name=myjlc5  --volume /home/ubuntu/nginxCode:/usr/share/nginx/html  nginx
+
+docker run -d  -p 1238:80 --name=myjlc103  --volume /home/ubuntu/mylogs:/opt/tomcat/logs  myjlc
+
+docker volume ls
+
+docker volume create myjlc-vol1
+
+docker container run -d  \
+--publish 2348:8080 \
+--name=myjlc4  \
+--volume myjlc-vol1:/jlctest\
+  myjlcapp
+
+docker exec -it myjlc4 /bin/bash
+
+cd /var/lib/docker/volumes/myjlc-vol1/_data/
+
+docker container run -d  \
+--publish 2349:8080 \
+--name=myjlc5  \
+--volume logs-volume:/opt/tomcat/logs \
+  myjlcapp
+
+docker container run -d  \
+--publish 2349:8080 \
+--name=myjlc5  \
+--mount type=volume,source=logs-volume,destination=/opt/tomcat/logs \
+ myjlcapp
+
+--mount  \
+
+18.220.217.4:1238
+
+cd /var/lib/docker/volumes/myjlc-vol1/_data/
+
+cd /var/lib/docker/volumes
+
+Manage Volumes
+==============
+Commands:
+  create      Create a volume
+  inspect     Display detailed information on one or more volumes
+  ls          List volumes
+  prune       Remove all unused volumes
+  rm          Remove one or more volumes
+
+------- End of Volumes--------
+
+
+
+
+
+
