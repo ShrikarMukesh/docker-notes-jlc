@@ -205,7 +205,7 @@ Docker Image Example #3 : Tomcat
 
 FROM ubuntu:20.04
 
-LABEL maintainer sri@jlcindia.com
+LABEL maintainer mukesh.shrikar7@gmail.com
 
 RUN apt-get -y update 
 
